@@ -377,6 +377,8 @@ sub add_dir
 {
   my ($self, $dir) = @_;
 
+  return unless (-d $dir);
+
   my $abDirTree = new abDirTree;
   find(sub { $abDirTree->build_from_str($File::Find::name); }, $dir);
 

@@ -1,2 +1,3 @@
-Moose
-MooseX::NonMoose
+Non perl-core dependencies:
+  Moose
+  MooseX::NonMoose
