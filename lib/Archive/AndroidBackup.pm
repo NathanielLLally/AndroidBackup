@@ -13,7 +13,10 @@ with 'Printable';
 
 =head1 SYNOPSIS
 
-
+  my $trunk = Tree->new;
+  $trunk->node('root');
+  $trunk = $trunk->get_or_add_child('branch.1');
+  $trunk = $trunk->get_or_add_child('branch.1');
 
 =cut
 
@@ -44,7 +47,7 @@ has 'level' => (is => 'rw', isa => 'Num', default => 0);
 after 'node' => sub {
   my ($self, $value) = @_;
   
-  $self->add_sibling($self->node => $self) if $self->has_parent and defined $value;
+  $self->set_sibling($self->node => $self) if $self->has_parent and defined $value;
 };
 
 has 'parent' => (
@@ -55,7 +58,7 @@ has 'parent' => (
     handles     => {
       parent_node => 'node',
       siblings    => 'children',
-      add_sibling => 'set_child',
+      set_sibling => 'set_child',
       }
     );
 
@@ -84,14 +87,14 @@ sub has_children
 
 =head2 add_child(;$node)
 
-  add's a new child to tree
+  add a new child to tree
 
 =cut
 sub add_child
 {
   my ($self, $node) = @_;
 
-  my $class = ref $self if ref $self;
+  my $class = (ref $self)? ref $self : $self;
   my $branch = $class->new( parent => $self );
   $branch->level($self->level + 1);
   if (defined $node) {
@@ -102,7 +105,7 @@ sub add_child
 
 =head2 get_or_add_child($node);
 
-  adds or gets an existing child
+  adds a child with $node as its data or get an existing child 
   returns an un-intialized orphan if node is undef
     *this will be added to the family upon setting node
 
@@ -126,15 +129,27 @@ sub get_or_add_child {
   return $child;
 }
 
+=head2 node_as_string()
+
+  represent node value as string
+
+=cut
 sub node_as_string
 {
   my $self = shift;
-  sprintf "%*s%s", $self->level * 4, "", $self->node;
+#  sprintf "%*s%s", $self->level * 4, "", $self->node;
+  my @ancestors = ($self->node);
+  my $branch = $self;
+  while ($branch->has_parent) {
+    $branch = $branch->parent;
+    unshift @ancestors, $branch->node;
+  }
+  return join('/', @ancestors);
 } 
 
 =head2 as_string
 
-  print node via note_as_string, then recurse to children
+  print node via node_as_string, then recurse to children
 
 =cut
 sub as_string {
@@ -144,6 +159,41 @@ sub as_string {
     push @out, $child->as_string;
   }
   return join("\n", @out); 
+}
+
+sub traverse_breadth
+{
+  my $self = shift;
+  my @q =( $self );
+  my @resultSet;
+  while ($#q >= 0) {
+    my $node = shift @q;
+
+    push @resultSet, $node;
+
+    @q = (@q, $node->children);
+
+  }
+  @resultSet;
+}
+
+
+sub traverse_depth
+{
+  my ($self, $sortFunc ) = @_;
+  my @resultSet;
+  my $branch = $self;
+
+  push @resultSet, $branch;
+
+  my @children = $branch->children;
+  if (defined $sortFunc) {
+    @children = sort $sortFunc @children;
+  }
+  foreach my $child (@children) {
+    @resultSet = (@resultSet, $child->traverse_depth($sortFunc));
+  }
+  @resultSet;
 }
 
 package DirTree;
@@ -208,7 +258,7 @@ sub node_as_string
 {
   my $self = shift;
  
-  my $str = $self->parent->node_as_string if ($self->has_parent);
+  my $str = ($self->has_parent) ? $self->parent->node_as_string : undef;
   if (defined $str and $self->has_node) {
     return join("/", $str, $self->node);
   } elsif ($self->has_node) {
@@ -230,7 +280,7 @@ has namespace => (
   default => sub { ''; },
 );
 
-sub as_arrayref
+sub as_array
 {
   my $self = shift;
   return "invalid android backup: missing _manifest"
@@ -239,33 +289,38 @@ sub as_arrayref
   #  adb restore will break if you try to 
   #  create an exiting private directory (at least on moto x)
   #
+  my $ns = $self->root->namespace;
   my %specialDirs = (
-      $self->root->namespace => 0,
       apps => 0,
-      ef => 0,
-      sp => 0,
-      db => 0,
+      "apps/$ns" => 0,
+      "apps/$ns/_manifest" => 0,
+      "apps/$ns/a" => 0,
+      "apps/$ns/f" => 0,
+      "apps/$ns/db" => 0,
+      "apps/$ns/ef" => 0,
+      "apps/$ns/sp" => 0,
       );
+ 
+  my $sortFunc = sub($$) {
+      $_[0]->has_children <=> $_[1]->has_children
+        ||
+      $_[0]->node cmp $_[1]->node;
+    };
+  my @files = grep { 
+    not exists $specialDirs{$_}
+  } map {
+    $_->node_as_string
+  } $self->traverse_depth($sortFunc);
 
-  my @out;
-  push @out,$self->node_as_string unless (exists $specialDirs{$self->node});
-  if ($self->node eq $self->root->namespace) {
-    my $specialChild = $self->get_child('_manifest');
+  unshift @files, "apps/$ns/_manifest";
 
-    push @out, $specialChild->node_as_string;
-
-    $self->orphan_child($specialChild->node);
-  }
-  foreach my $child (sort { $a->node cmp $b->node } $self->children) {
-    push @out, @{ $child->as_arrayref };
-  }
-  return \@out;
+  return @files;
 }
 
 override as_string => sub {
   my $self = shift;
 
-  return join("\n", @{ $self->as_arrayref });
+  return join("\n", @{ $self->as_array });
 };
 
 =head2 build_from_str
@@ -290,6 +345,8 @@ use File::Find;
 use Compress::Raw::Zlib;
 extends 'Archive::Tar';
 
+our $VERSION = '1.11';
+
 has 'file' => (
   is => 'rw',
   isa => 'Str',
@@ -302,6 +359,11 @@ has '_header' => (
   default => "ANDROID BACKUP\n1\n1\nnone\n",
 );
 
+=head 2 read($file)
+
+  performs 
+
+=cut
 around 'read' => sub 
 {
   my ($orig, $self, @args) = @_;
@@ -322,12 +384,13 @@ around 'read' => sub
   map { binmode $_, ":bytes"; } $inFH, $tmpFHin, $tmpFHout;
 
   my $bytes = read $inFH, $header, 24;
-  while (read($inFH, $inbuf, 1024)) {
+  while (read($inFH, $inbuf, 4096)) {
     $status = $z->inflate($inbuf, $outbuf);
     print $tmpFHout $outbuf;
     last if $status != Z_OK;
   }
   die "inflation failed" unless $status == Z_STREAM_END;
+  $tmpFHout->flush;
 
   $self->$orig($tmpFHin);
 
@@ -351,13 +414,6 @@ around 'write' => sub
 
   map { binmode $_, ":bytes"; } $outFH, $tmpFHout, $tmpFHin;
 
-  #  Archive::Tar will space pad numbers by default
-  #  (which makes sense considering they are ascii formatted numbers)
-  #  however, according to the android code, these entries can be space
-  #  or nul terminated
-  #  see BackupManagerService.java :: extractRadix
-  #
-  $Archive::Tar::ZERO_PAD_NUMBERS = 1;
   $self->$orig($tmpFHout);
 
   print $outFH $self->_header;
@@ -373,7 +429,7 @@ around 'write' => sub
 
   $status == Z_OK or die "deflation failed\n" ;
 
-    print $outFH $outbuf;
+  print $outFH $outbuf;
 
   map { close $_; } $outFH, $tmpFHout, $tmpFHin;
 };
@@ -389,9 +445,7 @@ sub add_dir
   my $abDirTree = new abDirTree;
   find(sub { $abDirTree->build_from_str($File::Find::name); }, $dir);
 
-  my @files = @{ $abDirTree->as_arrayref };
-
-  $self->add_files(@files);
+  $self->add_files( $abDirTree->as_array );
 }
 
 no Moose;
