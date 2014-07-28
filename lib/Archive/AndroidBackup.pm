@@ -351,6 +351,13 @@ around 'write' => sub
 
   map { binmode $_, ":bytes"; } $outFH, $tmpFHout, $tmpFHin;
 
+  #  Archive::Tar will space pad numbers by default
+  #  (which makes sense considering they are ascii formatted numbers)
+  #  however, according to the android code, these entries can be space
+  #  or nul terminated
+  #  see BackupManagerService.java :: extractRadix
+  #
+  $Archive::Tar::ZERO_PAD_NUMBERS = 1;
   $self->$orig($tmpFHout);
 
   print $outFH $self->_header;
