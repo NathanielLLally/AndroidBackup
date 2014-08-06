@@ -2,7 +2,6 @@
 
 use warnings;
 use strict;
-use lib '/home/nate/lib';
 use Archive::AndroidBackup;
 use Getopt::Std;
 
@@ -19,7 +18,7 @@ sub printUsage
       -x extract
 
 EOL
-
+;
 }
 
 my $ab = new Archive::AndroidBackup;
@@ -30,7 +29,14 @@ if (defined $ARGV[0] and -e $ARGV[0]) {
 
 if (exists $o{x}) {
   $ab->read($file);
-  $ab->extract;
+  if (exists $o{v}) {
+    foreach ($ab->list_files) {
+      print "$_\n";
+      $ab->extract_file($_);
+    }
+  } else {
+    $ab->extract;
+  }
 } elsif (exists $o{t}) {
   $ab->read($file);
   foreach ($ab->list_files) {

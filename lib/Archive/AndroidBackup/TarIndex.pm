@@ -267,13 +267,20 @@ use Moose;
 
 extends 'Archive::AndroidBackup::DirTree';
 
+our $VERSION = '2.1';
+
 =head1 NAME
   Archive::AndroidBackup::TarIndex
 
 =head1 SYNOPSIS
   
-  find apps/ | perl -MArchive::AndroidBackup::TarIndex -e 
-    'my $tree = new Archive::AndroidBackup::TarIndex; while (<STDIN>) { $tree->build_from_str($_) }; print $tree->as_string;'
+  open (CMD, 'find apps/', '|') || die "no find?!";
+  my $tree = new Archive::AndroidBackup::TarIndex;
+  while (<CMD>) { 
+    chomp;
+    $tree->build_from_str($_);
+  };
+  print $tree->as_string;
 
 =cut
 
