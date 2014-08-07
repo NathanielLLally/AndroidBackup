@@ -1,3 +1,8 @@
-Non perl-core dependencies:
-  Moose
-  MooseX::NonMoose
+android backup utility
+modelled after tar command
+
+  abk [op] file [dir]
+    -t list table of contents
+    -c create android backup named file from dir
+    -x extract
+    -v and list toc 

@@ -1,0 +1,9 @@
+in order of desire
+
+distribute to windows
+  req. non cygwin environment
+  -look into fatpacking (ex. cpanm)
+  -PAR
+
+support encryption
+support non-compressed files
