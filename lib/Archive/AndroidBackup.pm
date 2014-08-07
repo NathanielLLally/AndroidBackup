@@ -9,7 +9,7 @@ use IO::Handle '_IOLBF';
 use Archive::AndroidBackup::TarIndex;
 extends 'Archive::Tar';
 
-our $VERSION = '1.12';
+our $VERSION = '1.13';
 
 has 'file' => (
   is => 'rw',
@@ -17,6 +17,9 @@ has 'file' => (
   default => 'backup.ab',
 );
 
+#  defaults to invalid values to ensure
+#  explicit setting read_header and write_header
+#
 subtype 'HdrMagic'
   => as 'Str'
   => where { $_ eq "ANDROID BACKUP" }
@@ -67,6 +70,13 @@ sub read_header($)
 sub write_header($)
 {
   my ($self, $FH) = @_;
+
+  $self->magic("ANDROID BACKUP");
+  $self->version(1);
+  $self->compression(1);
+  $self->encryption("none");
+
+  seek $FH, 0, 0;
   print $FH $self->magic . "\n";
   print $FH $self->version . "\n";
   print $FH $self->compression . "\n";

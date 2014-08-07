@@ -10,35 +10,25 @@ my(%params) =
 	(
 		AUTHOR   => 'Nathaniel Lally <nll@cpan.org>',
 		ABSTRACT => 'Subclass of Archive::Tar that deals with Android Backup files (adb backup / adb restore)',
+    LICENSE => 'GPL-w.0+',
 	) : (),
 	clean =>
 	{
 		FILES => 'blib/* Makefile MANIFEST AndoidBackup-*'
 	},
-	dist =>
-	{
-		COMPRESS => 'gzip',
-		SUFFIX   => 'gz'
-	},
+	dist => { COMPRESS => 'gzip', SUFFIX   => 'gz' },
 	DISTNAME  => 'Archive-AndroidBackup',
 	NAME      => 'Archive::AndroidBackup',
-	PL_FILES  => {},
+	EXE_FILES  => ['bin/abk'],
 	PREREQ_PM =>
 	{
-		'constant'        => 0,
-		'strict'          => 0,
-		'Test::Version'   => 1.002003,
-		'warnings'        => 0,
-		'Moose'        => '2.0801',
-		'MooseX::NonMoose'        => '0.26',
+		'Test::Version'   => 0,
+		'Moose'        => '0',
+		'MooseX::NonMoose'        => '0',
+    'Moose::Util::TypeConstraints' => '0',
 	},
 	VERSION_FROM => 'lib/Archive/AndroidBackup.pm',
 );
-
-if ( ($ExtUtils::MakeMaker::VERSION =~ /^\d\.\d\d$/) && ($ExtUtils::MakeMaker::VERSION > 6.30) )
-{
-	$params{LICENSE} = 'artistic_2';
-}
 
 if ($ExtUtils::MakeMaker::VERSION ge '6.46')
 {
@@ -47,7 +37,7 @@ if ($ExtUtils::MakeMaker::VERSION ge '6.46')
 		resources =>
 		{
 			bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Archive-AndroidBackup',
-			license    => 'http://www.perlfoundation.org/artistic_license_2_0',
+			license    => 'http://www.gnu.org/copyleft/gpl.html'
 		},
 	};
 }
