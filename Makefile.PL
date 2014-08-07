@@ -6,19 +6,9 @@ use ExtUtils::MakeMaker;
 
 my(%params) =
 (
-	($] ge '5.005') ?
-	(
-		AUTHOR   => 'Nathaniel Lally <nll@cpan.org>',
-		ABSTRACT => 'Subclass of Archive::Tar that deals with Android Backup files (adb backup / adb restore)',
-    LICENSE => 'GPL-w.0+',
-	) : (),
-	clean =>
-	{
-		FILES => 'blib/* Makefile MANIFEST AndoidBackup-*'
-	},
-	dist => { COMPRESS => 'gzip', SUFFIX   => 'gz' },
-	DISTNAME  => 'Archive-AndroidBackup',
 	NAME      => 'Archive::AndroidBackup',
+	VERSION_FROM => 'lib/Archive/AndroidBackup.pm',
+	DISTNAME  => 'Archive-AndroidBackup',
 	EXE_FILES  => ['bin/abk'],
 	PREREQ_PM =>
 	{
@@ -27,7 +17,17 @@ my(%params) =
 		'MooseX::NonMoose'        => '0',
     'Moose::Util::TypeConstraints' => '0',
 	},
-	VERSION_FROM => 'lib/Archive/AndroidBackup.pm',
+	dist => { COMPRESS => 'gzip', SUFFIX   => 'gz' },
+	clean =>
+	{
+		FILES => 'blib/* Makefile MANIFEST MANIFEST.bak AndoidBackup-*'
+	},
+	($] ge '5.005') ?
+	(
+		AUTHOR   => 'Nathaniel Lally <nll@cpan.org>',
+		ABSTRACT => 'Subclass of Archive::Tar that deals with Android Backup files (adb backup / adb restore)',
+    LICENSE => 'GPL-3',
+	) : (),
 );
 
 if ($ExtUtils::MakeMaker::VERSION ge '6.46')
