@@ -34,9 +34,20 @@ if ($ExtUtils::MakeMaker::VERSION ge '6.46')
 {
 	$params{META_MERGE} =
 	{
+		'meta-spec' => { version => 2 },
 		resources =>
 		{
-			bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Archive-AndroidBackup',
+			repository =>
+			{
+				type => 'git',
+				url  => 'https://github.com/NathanielLLally/AndroidBackup.git',
+				web  => 'https://github.com/NathanielLLally/AndroidBackup',
+			},
+			bugtracker =>
+			{
+				web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Archive-AndroidBackup',
+				mailto => 'bug-archive-androidbackup@rt.cpan.org',
+			},
 			license    => 'http://www.gnu.org/copyleft/gpl.html'
 		},
 	};
