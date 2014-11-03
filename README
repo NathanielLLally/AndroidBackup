@@ -1,6 +1,7 @@
 android backup utility
 modelled after tar
 repo: git@github.com:NathanielLLally/AndroidBackup.git
+cpan: Archive::AndroidBackup
 
 this project perhaps may be able to read and create ab files, but primary, 
 it was born from the desire to copy files from system protected areas
