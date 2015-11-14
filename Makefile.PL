@@ -16,6 +16,8 @@ my(%params) =
 		'Moose'        => '0',
 		'MooseX::NonMoose'        => '0',
     'Moose::Util::TypeConstraints' => '0',
+    'IO::Zlib' => 0,
+    'Archie::Tar' => 0,
 	},
 	dist => { COMPRESS => 'gzip', SUFFIX   => 'gz' },
 	clean =>
