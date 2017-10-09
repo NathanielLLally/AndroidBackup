@@ -1,0 +1,55 @@
+{
+   "abstract" : "Subclass of Archive::Tar that deals with Android Backup files (adb backup / adb restore)",
+   "author" : [
+      "Nathaniel Lally <nll@cpan.org>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150010",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : 2
+   },
+   "name" : "Archive-AndroidBackup",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Archie::Tar" : "0",
+            "IO::Zlib" : "0",
+            "Moose" : "0",
+            "Moose::Util::TypeConstraints" : "0",
+            "MooseX::NonMoose" : "0",
+            "Test::Version" : "0"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=Archive-AndroidBackup"
+      },
+      "license" : [
+         "http://www.gnu.org/copyleft/gpl.html"
+      ]
+   },
+   "version" : "1.15",
+   "x_serialization_backend" : "JSON::PP version 2.94"
+}
