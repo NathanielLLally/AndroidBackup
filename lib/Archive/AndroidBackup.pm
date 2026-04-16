@@ -27,9 +27,11 @@ subtype 'HdrMagic'
 
 has 'magic' => ( is => 'rw', isa => 'HdrMagic', lazy => 1, default => '' );
 
+#  todo, test/verify that version 4 & 5 are compatiable
+#
 subtype 'HdrVersion'
   => as 'Num'
-  => where { $_ =~ /^[0123]$/}
+  => where { $_ =~ /^[012345]$/}
   => message {"Unsupported File Version [$_]"};
 
 has 'version' => ( is => 'rw', isa => 'HdrVersion', lazy => 1, default => 0 );
